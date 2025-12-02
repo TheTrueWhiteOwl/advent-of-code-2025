@@ -42,7 +42,7 @@ fn part2(input: String) {
         let end_int: usize = end.parse().expect("This is a valid number");
         for id in start_int..=end_int {
             let id_str = format!("{}", id);
-            'outer: for i in (1..id_str.len()).filter(|x| id_str.len()%x==0) {
+            'outer: for i in (1..=id_str.len()/2).filter(|x| id_str.len()%x==0) {
                 let first_part = &id_str[..i];
                 for j in (i..id_str.len()).step_by(i) {
                     let part = &id_str[j..j+i];
