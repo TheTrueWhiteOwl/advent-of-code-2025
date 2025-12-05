@@ -51,9 +51,7 @@ fn main() {
     }
 }
 
-fn part1(input: String) {
-    let mut accessible_toilet_rolls = 0;
-
+fn input_to_bool_grid(input: String) -> Grid {
     let rows = input.lines().count();
     let cols = input.lines().next().expect("There will always be at least one line").chars().count();
     assert!(input.lines().all(|l| l.chars().count() == cols));
@@ -62,9 +60,14 @@ fn part1(input: String) {
         .map(|symbol| match symbol { '.' => false, '@' => true, _ => unreachable!("The grid only ever contains '.' or '@'") })
         .collect();
 
-    let grid = Grid { rows, cols, contents };
-    for row in 0..rows {
-        for col in 0..cols {
+    Grid { rows, cols, contents }
+}
+
+fn part1(input: String) {
+    let mut accessible_toilet_rolls = 0;
+    let grid = input_to_bool_grid(input);
+    for row in 0..grid.rows {
+        for col in 0..grid.cols {
             if grid.get(row, col).expect("Always within bounds") && grid.count_neighbours(row, col) < 4 {
                 accessible_toilet_rolls += 1;
             }
@@ -74,22 +77,14 @@ fn part1(input: String) {
 }
 
 fn part2(input: String) {
-    let rows = input.lines().count();
-    let cols = input.lines().next().expect("There will always be at least one line").chars().count();
-    assert!(input.lines().all(|l| l.chars().count() == cols));
-    let contents: Vec<bool> = input.lines()
-        .flat_map(|line| line.chars())
-        .map(|symbol| match symbol { '.' => false, '@' => true, _ => unreachable!("The grid only ever contains '.' or '@'") })
-        .collect();
-
-    let mut grid = Grid { rows, cols, contents };
+    let mut grid = input_to_bool_grid(input);
 
     let mut removed_toilet_rolls = 0;
     let mut any_toilet_rolls_removed = true;
     while any_toilet_rolls_removed {
         any_toilet_rolls_removed = false;
-        for row in 0..rows {
-            for col in 0..cols {
+        for row in 0..grid.rows {
+            for col in 0..grid.cols {
                 if grid.get(row, col).expect("Always within bounds") && grid.count_neighbours(row, col) < 4 {
                     grid.set(row, col, false);
                     any_toilet_rolls_removed = true;
