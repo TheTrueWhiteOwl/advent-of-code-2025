@@ -1,4 +1,4 @@
-use day_1::Wrapping;
+use day_01::Wrapping;
 
 const STARTING_SPOT: usize = 50;
 const WHEEL_SIZE: usize = 100;
