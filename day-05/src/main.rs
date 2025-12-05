@@ -32,11 +32,9 @@ fn merge_inclusive_ranges<T>(ranges_iter: T) -> Vec<RangeInclusive<usize>>
 
         match (merged_ranges.get(insert_idx.wrapping_sub(1)).map(|r| r.last >= range.start-1).unwrap_or(false), merged_ranges.get(insert_idx).map(|r| r.start <= range.last+1).unwrap_or(false)) {
             (true, true) => {
-                let after_range = merged_ranges.get(insert_idx).unwrap();
-                let last = max(after_range.last, range.last);
-                let before_range = merged_ranges.get_mut(insert_idx-1).unwrap();
+                let [before_range, after_range] = merged_ranges.get_disjoint_mut([insert_idx-1,insert_idx]).unwrap();
                 before_range.start = min(before_range.start, range.start);
-                before_range.last = last;
+                before_range.last = max(after_range.last, range.last);
                 merged_ranges.remove(insert_idx);
             },
             (true, false) => {
