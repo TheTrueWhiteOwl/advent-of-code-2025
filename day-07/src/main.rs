@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-use std::collections::HashMap;
+use std::collections::{HashSet, HashMap};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -29,10 +28,9 @@ fn part1(input: String) {
 
     for line in input.lines().skip(1) {
         for (splitter_position, _) in line.match_indices('^') {
-            if tachyon_beam_locations.contains(&splitter_position) {
+            if tachyon_beam_locations.remove(&splitter_position) {
                 split_count += 1;
                 // splitters are never touching eachother, or the edge, so this is fine
-                tachyon_beam_locations.remove(&splitter_position);
                 tachyon_beam_locations.insert(splitter_position-1);
                 tachyon_beam_locations.insert(splitter_position+1);
             }
