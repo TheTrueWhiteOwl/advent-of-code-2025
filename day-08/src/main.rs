@@ -88,5 +88,40 @@ fn part1(input: String) {
 }
 
 fn part2(input: String) {
-    todo!()
+    let total_positions = input.lines().count();
+    let mut distances: BTreeMap<OrdF64, (Position, Position)> = BTreeMap::new();
+    let positions = input.lines()
+        .flat_map(|line| line.split(','))
+        .map(|num| num.parse::<u64>().expect("All valid nums"))
+        .array_chunks::<3>()
+        .map(Position::from)
+        .collect::<Vec<_>>();
+    for (i, &pos) in positions.iter().enumerate() {
+        for &other_pos in positions[i+1..].iter() {
+            distances.insert(OrdF64(pos.dist(other_pos)), (pos, other_pos));
+        }
+    }
+
+    let mut pos_to_circuit: HashMap<Position, Rc<RefCell<HashSet<Position>>>> = positions.into_iter().map(|pos| (pos, Rc::new(RefCell::new(HashSet::from([pos]))))).collect();
+    for (pos_1, pos_2) in distances.values() {
+        let circuit_1 = pos_to_circuit.get(pos_1).unwrap().clone();
+        let circuit_2 = pos_to_circuit.get(pos_2).unwrap().clone();
+        if circuit_1 == circuit_2 {
+            continue
+        }
+        let (small, large) = if circuit_1.borrow().len() < circuit_2.borrow().len() {
+            (circuit_1, circuit_2)
+        } else {
+            (circuit_2, circuit_1)
+        };
+        for pos in small.borrow().iter() {
+            large.borrow_mut().insert(*pos);
+            let circuit = pos_to_circuit.get_mut(pos).unwrap();
+            *circuit = large.clone();
+        }
+        if large.borrow().len() == total_positions {
+            println!("{}", pos_1.0 * pos_2.0);
+            break
+        }
+    }
 }
