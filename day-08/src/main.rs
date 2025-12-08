@@ -8,16 +8,17 @@ use std::rc::Rc;
 use itertools::Itertools;
 
 #[derive(Copy, Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
-struct Position(u32, u32, u32);
+struct Position(u64, u64, u64);
 
 impl Position {
     fn dist(&self, other: Self) -> f64 {
-        f64::from(self.0.abs_diff(other.0).pow(2) + self.1.abs_diff(other.1).pow(2) + self.2.abs_diff(other.2).pow(2)).sqrt()
+        let sum: u64 = self.0.abs_diff(other.0).pow(2) + self.1.abs_diff(other.1).pow(2) + self.2.abs_diff(other.2).pow(2);
+        (sum as f64).sqrt()
     }
 }
 
-impl From<[u32; 3]> for Position {
-    fn from(arr: [u32; 3]) -> Self {
+impl From<[u64; 3]> for Position {
+    fn from(arr: [u64; 3]) -> Self {
         Position(arr[0], arr[1], arr[2])
     }
 }
@@ -52,7 +53,7 @@ fn part1(input: String) {
     let mut distances: BTreeMap<OrdF64, (Position, Position)> = BTreeMap::new();
     let positions = input.lines()
         .flat_map(|line| line.split(','))
-        .map(|num| num.parse::<u32>().expect("All valid nums"))
+        .map(|num| num.parse::<u64>().expect("All valid nums"))
         .array_chunks::<3>()
         .map(Position::from)
         .collect::<Vec<_>>();
@@ -82,8 +83,6 @@ fn part1(input: String) {
     }
     let mut circuit_lens = pos_to_circuit.values().unique_by(|rc_1| Rc::as_ptr(rc_1)).map(|rc_refcell_circuit| rc_refcell_circuit.borrow().len()).collect::<Vec<usize>>();
     circuit_lens.sort_unstable();
-    println!("{:?}", circuit_lens);
-    assert_eq!(circuit_lens.iter().sum::<usize>(), input.lines().count());
     let final_answer: usize = circuit_lens.iter().rev().take(3).fold(1, |acc, x| acc*x);
     println!("{}", final_answer);
 }
